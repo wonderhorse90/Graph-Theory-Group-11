@@ -19,8 +19,11 @@ class Path:
 
 Path Class: This class is used to represent an edge between two nodes (or cities).
 `label` - A unique identifier for the path (edge).
+
 `from_node` - The starting node of the edge.
+
 `to_node` - The destination node of the edge.
+
 `weight` - The cost (or distance) associated with this path.
 
 ```python
