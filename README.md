@@ -15,3 +15,18 @@ class Path:
         self.from_node = from_node
         self.to_node = to_node
         self.weight = weight
+
+Path Class: This class is used to represent an edge between two nodes (or cities).
+`label` - A unique identifier for the path (edge).
+`from_node` - The starting node of the edge.
+`to_node` - The destination node of the edge.
+`weight` - The cost (or distance) associated with this path.
+
+```python
+node_count = 0
+edge_count = 0
+all_edges = []
+adjacency_list = []
+start = 0
+lowest_cost = sys.maxsize
+optimal_path = []
