@@ -357,92 +357,138 @@ chinese_postman solves the Chinese Postman Problem.
 
 # Knight's Problem Solver
 
+### 1. Initialization Functions
+### is_safe Function:
 ```python
-FUNCTION is_safe(x, y, board, N, M):
-    RETURN (0 <= x < N) AND (0 <= y < M) AND (board[x][y] == -1)
+def is_safe(x, y, board, N, M):
+    return 0 <= x < N and 0 <= y < M and board[x][y] == -1
+```
+Purpose: Checks if a given position (x, y) is within the boundaries of the board and whether it has been visited.
+Parameters:
+    - x, y: Coordinates of the position to check.
+    - board: The chessboard (2D array) representing visited and unvisited squares.
+    - N, M: Dimensions of the board (number of rows N and columns M).
+Return: True if the position is valid and unvisited; False otherwise.
 
-FUNCTION get_degree(x, y, board, moves_x, moves_y, N, M):
-    degree = 0
-    FOR each move in possible knight moves (8 directions):
+### get_degree Function:
+```python
+def get_degree(x, y, board, moves_x, moves_y, N, M):
+    count = 0
+    for i in range(8):
         next_x = x + moves_x[i]
         next_y = y + moves_y[i]
-        IF is_safe(next_x, next_y, board, N, M):
-            degree += 1
-    RETURN degree
+        if is_safe(next_x, next_y, board, N, M):
+            count += 1
+    return count
+```
+Purpose: Calculates the number of onward moves a knight can make from a given position (x, y).
+Parameters: Same as above, plus moves_x and moves_y which contain the possible moves of the knight.
+Logic: Iterates over all 8 possible knight moves and counts how many of them lead to valid (safe) positions.
+Return: The number of safe onward moves from (x, y).
 
-FUNCTION print_solution(board):
+### 2. Displaying the Solution
+### print_solution Function:
+```python
+def print_solution(board):
     result = []
-    FOR each cell in board:
-        result.append((row, column, move_number))
-    SORT result by move_number
-    FOR each element in sorted result:
-        PRINT row, column
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            result.append((i, j, board[i][j]))
+    result.sort(key=lambda x: x[2])
+    for x, y, move in result:
+        print(x, y)
+```
+Purpose: Outputs the sequence of knight's moves in the order they were visited.
+Parameters: board (2D array with move numbers).
+Logic:
+    - Creates a list called result to store (row, column, move_number) for each position.
+    - Sorts the list based on move_number to ensure the output is in the order of the knight's moves.
+    - Iterates through the sorted list to print each move (x, y).
 
-FUNCTION solve_knights_tour(N, M, start_x, start_y):
-    board = 2D array of size N x M filled with -1
-    moves_x = [2, 1, -1, -2, -2, -1, 1, 2]  // Possible knight moves in x direction
-    moves_y = [1, 2, 2, 1, -1, -2, -2, -1]  // Possible knight moves in y direction
-    board[start_x][start_y] = 0  // Start from the given position
-
-    IF solve_knights_tour_util(start_x, start_y, 1, board, moves_x, moves_y, N, M):
+### 3. Main Solving Function
+### solve_knights_tour Function:
+```python
+def solve_knights_tour(N, M, start_x, start_y):
+    board = [[-1 for _ in range(M)] for _ in range(N)]
+    moves_x = [2, 1, -1, -2, -2, -1, 1, 2]
+    moves_y = [1, 2, 2, 1, -1, -2, -2, -1]
+    board[start_x][start_y] = 0
+    if not solve_knights_tour_util(start_x, start_y, 1, board, moves_x, moves_y, N, M):
+        print("No solution exists")
+    else:
         print_solution(board)
-    ELSE:
-        PRINT "No solution exists"
+```
+Purpose: Sets up the board and starts the process of finding the knight’s tour.
+Parameters:
+    - N, M: Dimensions of the board.
+    - start_x, start_y: The starting position of the knight.
+Logic:
+    - Initializes a board filled with -1 to represent unvisited squares.
+    - Defines moves_x and moves_y to represent the possible movements of a knight (up-right, up-left, etc.).
+    - Marks the starting position with 0 (the first move).
+    - Calls solve_knights_tour_util to try to find a solution.
+    - If the solution exists, it calls print_solution to display it; otherwise, it prints "No solution exists".
 
-FUNCTION solve_knights_tour_util(x, y, move_count, board, moves_x, moves_y, N, M):
-    IF move_count == N * M:
-        RETURN True  // All cells are visited
+### 4. Recursive Utility Function (Core of the Algorithm)
+### solve_knights_tour_util Function:
+```python
+def solve_knights_tour_util(x, y, move_count, board, moves_x, moves_y, N, M):
+    if move_count == N * M:
+        return True
 
     next_moves = []
-    FOR each move in possible knight moves:
+    for i in range(8):
         next_x = x + moves_x[i]
         next_y = y + moves_y[i]
-        IF is_safe(next_x, next_y, board, N, M):
+        if is_safe(next_x, next_y, board, N, M):
             degree = get_degree(next_x, next_y, board, moves_x, moves_y, N, M)
             next_moves.append((degree, next_x, next_y))
-    
-    SORT next_moves based on degree (ascending order)
+    next_moves.sort()
 
-    FOR each move in next_moves:
+    for _, next_x, next_y in next_moves:
         board[next_x][next_y] = move_count
-        IF solve_knights_tour_util(next_x, next_y, move_count + 1, board, moves_x, moves_y, N, M):
-            RETURN True
-        board[next_x][next_y] = -1  // Backtracking
+        if solve_knights_tour_util(next_x, next_y, move_count + 1, board, moves_x, moves_y, N, M):
+            return True
+        board[next_x][next_y] = -1
 
-    RETURN False
-
-// MAIN program
-INPUT N, M  // Size of the board
-INPUT start_x, start_y  // Starting position of the knight
-solve_knights_tour(N, M, start_x, start_y)
+    return False
 ```
+Purpose: Recursively attempts to build the knight’s tour using backtracking and Warnsdorff’s heuristic.
+Parameters:
+    - x, y: Current position of the knight.
+    - move_count: The current move number.
+    - board, moves_x, moves_y, N, M: As described earlier.
+Logic:
+    - Base Case: If move_count equals N * M, all squares have been visited, so return True.
+    - Generate Next Moves: Iterates over all possible knight moves. If a move is safe, it calculates the degree using get_degree and appends the move and its degree to next_moves.
+    - Sort Next Moves: Sorts next_moves based on their degree, which means it attempts moves with fewer onward possibilities first.
+    - Recursive Call: Iteratively tries each sorted move:
+        - Marks the next position with the current move_count.
+        - Recursively calls itself with the updated move_count.
+        - If the recursive call finds a solution, returns True.
+        - If not, backtracks by marking the position as unvisited (-1).
+    - Return False: If no valid moves are found, returns False to backtrack.
 
-1. Input: The program reads the board size `N` (rows) and `M` (columns) and the knight's starting position `(start_x, start_y)`.
+### 5. Driver Code
+This part is responsible for handling user input:
+```python
+if __name__ == "__main__":
+    N, M = map(int, input("Enter the size of the board (N M): ").split())
+    start_x, start_y = map(int, input("Enter the starting position of the knight (x y): ").split())
+    solve_knights_tour(N, M, start_x, start_y)
+```
+Purpose: Reads input from the user, including the board size (N and M) and the knight’s starting position (start_x and start_y).
+Logic: Uses input() to get values and converts them into integers using map().
 
-2. Initialization:
-    a. `board`: A 2D array of size `N x M` is initialized with `-1`, indicating that all squares are unvisited.
-    b. The knight's starting position is marked with `0`, representing the first move.
-    c. `moves_x` and `moves_y`: Arrays representing the possible moves a knight can make (e.g., `+2, +1`, `+1, +2`, etc.).
+### How It All Works Together:
+- Input: The user provides the board size and starting position.
+- Board Setup: solve_knights_tour sets up the board and attempts to find a tour.
+- Recursive Backtracking with Warnsdorff’s Rule: solve_knights_tour_util recursively tries to place the knight on each position while choosing paths with fewer onward options.
+- Backtracking: If a path fails to cover all squares, it backtracks and tries a different path.
+- Output: If a solution is found, print_solution outputs the move sequence. Otherwise, "No solution exists" is printed.
 
-3. solve_knights_tour_util Function:
-    a. Base Case: If the `move_count` equals `N * M`, it means all squares have been visited, and a solution is found. The function returns `True`.
-    b. Generate Possible Moves: For each possible knight move from the current position `(x, y)`, it checks if the next move is safe using `is_safe`.
-    c. Degree Calculation: It calculates the number of onward moves (degree) from each safe next position using `get_degree`.
-    d. Sort by Degree: The next moves are sorted based on their degree in ascending order, prioritizing moves with fewer onward options.
-    e. Backtracking: For each sorted move:
-        - Update the `board` with the `move_count` and make a recursive call with the updated move count.
-        - If the recursive call succeeds, return `True`.
-        - Otherwise, backtrack by resetting the position to `-1`.
-    If no valid moves are found, return `False`.
-
-4. print_solution Function: If a solution is found, it prints out the sequence of moves by sorting the positions based on the order they were visited.
-
-5. Output:
-    a. If a solution exists, the program prints the sequence of `(row, column)` pairs representing the knight's tour.
-    b. If no solution exists, it outputs "No solution exists".
-
-Key Concepts:
-    a. Warnsdorff's Rule: The heuristic prioritizes moves that leave the knight with the fewest subsequent options, helping to avoid getting trapped.
-    b. Backtracking: The algorithm tries each potential move and backtracks if a move leads to a dead end.
-    c. Sorting Moves: Sorting the next possible moves based on degree helps the knight navigate the board more effectively.
+### Summary:
+- Heuristic: Warnsdorff's rule guides the knight to positions with fewer onward options, helping to avoid early dead-ends.
+- Backtracking: The recursive function explores all possible paths, backtracking when a dead-end is reached.
+- Efficiency: Sorting moves based on the degree improves the likelihood of finding a solution more quickly compared to simple brute-force approaches.
 
