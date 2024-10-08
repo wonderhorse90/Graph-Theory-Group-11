@@ -184,3 +184,96 @@ Cost: 17
 Route: 0, 1, 3
 
 
+# Number 3
+
+# Knight's Problem Solver
+
+```python
+FUNCTION is_safe(x, y, board, N, M):
+    RETURN (0 <= x < N) AND (0 <= y < M) AND (board[x][y] == -1)
+
+FUNCTION get_degree(x, y, board, moves_x, moves_y, N, M):
+    degree = 0
+    FOR each move in possible knight moves (8 directions):
+        next_x = x + moves_x[i]
+        next_y = y + moves_y[i]
+        IF is_safe(next_x, next_y, board, N, M):
+            degree += 1
+    RETURN degree
+
+FUNCTION print_solution(board):
+    result = []
+    FOR each cell in board:
+        result.append((row, column, move_number))
+    SORT result by move_number
+    FOR each element in sorted result:
+        PRINT row, column
+
+FUNCTION solve_knights_tour(N, M, start_x, start_y):
+    board = 2D array of size N x M filled with -1
+    moves_x = [2, 1, -1, -2, -2, -1, 1, 2]  // Possible knight moves in x direction
+    moves_y = [1, 2, 2, 1, -1, -2, -2, -1]  // Possible knight moves in y direction
+    board[start_x][start_y] = 0  // Start from the given position
+
+    IF solve_knights_tour_util(start_x, start_y, 1, board, moves_x, moves_y, N, M):
+        print_solution(board)
+    ELSE:
+        PRINT "No solution exists"
+
+FUNCTION solve_knights_tour_util(x, y, move_count, board, moves_x, moves_y, N, M):
+    IF move_count == N * M:
+        RETURN True  // All cells are visited
+
+    next_moves = []
+    FOR each move in possible knight moves:
+        next_x = x + moves_x[i]
+        next_y = y + moves_y[i]
+        IF is_safe(next_x, next_y, board, N, M):
+            degree = get_degree(next_x, next_y, board, moves_x, moves_y, N, M)
+            next_moves.append((degree, next_x, next_y))
+    
+    SORT next_moves based on degree (ascending order)
+
+    FOR each move in next_moves:
+        board[next_x][next_y] = move_count
+        IF solve_knights_tour_util(next_x, next_y, move_count + 1, board, moves_x, moves_y, N, M):
+            RETURN True
+        board[next_x][next_y] = -1  // Backtracking
+
+    RETURN False
+
+// MAIN program
+INPUT N, M  // Size of the board
+INPUT start_x, start_y  // Starting position of the knight
+solve_knights_tour(N, M, start_x, start_y)
+```
+
+1. Input: The program reads the board size `N` (rows) and `M` (columns) and the knight's starting position `(start_x, start_y)`.
+
+2. Initialization:
+    a. `board`: A 2D array of size `N x M` is initialized with `-1`, indicating that all squares are unvisited.
+    b. The knight's starting position is marked with `0`, representing the first move.
+    c. `moves_x` and `moves_y`: Arrays representing the possible moves a knight can make (e.g., `+2, +1`, `+1, +2`, etc.).
+
+3. solve_knights_tour_util Function:
+    a. Base Case: If the `move_count` equals `N * M`, it means all squares have been visited, and a solution is found. The function returns `True`.
+    b. Generate Possible Moves: For each possible knight move from the current position `(x, y)`, it checks if the next move is safe using `is_safe`.
+    c. Degree Calculation: It calculates the number of onward moves (degree) from each safe next position using `get_degree`.
+    d. Sort by Degree: The next moves are sorted based on their degree in ascending order, prioritizing moves with fewer onward options.
+    e. Backtracking: For each sorted move:
+        - Update the `board` with the `move_count` and make a recursive call with the updated move count.
+        - If the recursive call succeeds, return `True`.
+        - Otherwise, backtrack by resetting the position to `-1`.
+    If no valid moves are found, return `False`.
+
+4. print_solution Function: If a solution is found, it prints out the sequence of moves by sorting the positions based on the order they were visited.
+
+5. Output:
+    a. If a solution exists, the program prints the sequence of `(row, column)` pairs representing the knight's tour.
+    b. If no solution exists, it outputs "No solution exists".
+
+Key Concepts:
+    a. Warnsdorff's Rule: The heuristic prioritizes moves that leave the knight with the fewest subsequent options, helping to avoid getting trapped.
+    b. Backtracking: The algorithm tries each potential move and backtracks if a move leads to a dead end.
+    c. Sorting Moves: Sorting the next possible moves based on degree helps the knight navigate the board more effectively.
+
