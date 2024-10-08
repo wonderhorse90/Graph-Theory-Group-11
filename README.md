@@ -363,12 +363,12 @@ chinese_postman solves the Chinese Postman Problem.
 def is_safe(x, y, board, N, M):
     return 0 <= x < N and 0 <= y < M and board[x][y] == -1
 ```
-Purpose: Checks if a given position (x, y) is within the boundaries of the board and whether it has been visited.
-Parameters:
+- Purpose: Checks if a given position (x, y) is within the boundaries of the board and whether it has been visited.
+- Parameters:
     - x, y: Coordinates of the position to check.
     - board: The chessboard (2D array) representing visited and unvisited squares.
     - N, M: Dimensions of the board (number of rows N and columns M).
-Return: True if the position is valid and unvisited; False otherwise.
+- Return: True if the position is valid and unvisited; False otherwise.
 
 ### get_degree Function:
 ```python
@@ -381,10 +381,10 @@ def get_degree(x, y, board, moves_x, moves_y, N, M):
             count += 1
     return count
 ```
-Purpose: Calculates the number of onward moves a knight can make from a given position (x, y).
-Parameters: Same as above, plus moves_x and moves_y which contain the possible moves of the knight.
-Logic: Iterates over all 8 possible knight moves and counts how many of them lead to valid (safe) positions.
-Return: The number of safe onward moves from (x, y).
+- Purpose: Calculates the number of onward moves a knight can make from a given position (x, y).
+- Parameters: Same as above, plus moves_x and moves_y which contain the possible moves of the knight.
+- Logic: Iterates over all 8 possible knight moves and counts how many of them lead to valid (safe) positions.
+- Return: The number of safe onward moves from (x, y).
 
 ### 2. Displaying the Solution
 ### print_solution Function:
@@ -398,9 +398,9 @@ def print_solution(board):
     for x, y, move in result:
         print(x, y)
 ```
-Purpose: Outputs the sequence of knight's moves in the order they were visited.
-Parameters: board (2D array with move numbers).
-Logic:
+- Purpose: Outputs the sequence of knight's moves in the order they were visited.
+- Parameters: board (2D array with move numbers).
+- Logic:
     - Creates a list called result to store (row, column, move_number) for each position.
     - Sorts the list based on move_number to ensure the output is in the order of the knight's moves.
     - Iterates through the sorted list to print each move (x, y).
@@ -418,11 +418,11 @@ def solve_knights_tour(N, M, start_x, start_y):
     else:
         print_solution(board)
 ```
-Purpose: Sets up the board and starts the process of finding the knight’s tour.
-Parameters:
+- Purpose: Sets up the board and starts the process of finding the knight’s tour.
+- Parameters:
     - N, M: Dimensions of the board.
     - start_x, start_y: The starting position of the knight.
-Logic:
+- Logic:
     - Initializes a board filled with -1 to represent unvisited squares.
     - Defines moves_x and moves_y to represent the possible movements of a knight (up-right, up-left, etc.).
     - Marks the starting position with 0 (the first move).
@@ -453,12 +453,12 @@ def solve_knights_tour_util(x, y, move_count, board, moves_x, moves_y, N, M):
 
     return False
 ```
-Purpose: Recursively attempts to build the knight’s tour using backtracking and Warnsdorff’s heuristic.
-Parameters:
+- Purpose: Recursively attempts to build the knight’s tour using backtracking and Warnsdorff’s heuristic.
+- Parameters:
     - x, y: Current position of the knight.
     - move_count: The current move number.
     - board, moves_x, moves_y, N, M: As described earlier.
-Logic:
+- Logic:
     - Base Case: If move_count equals N * M, all squares have been visited, so return True.
     - Generate Next Moves: Iterates over all possible knight moves. If a move is safe, it calculates the degree using get_degree and appends the move and its degree to next_moves.
     - Sort Next Moves: Sorts next_moves based on their degree, which means it attempts moves with fewer onward possibilities first.
@@ -477,8 +477,8 @@ if __name__ == "__main__":
     start_x, start_y = map(int, input("Enter the starting position of the knight (x y): ").split())
     solve_knights_tour(N, M, start_x, start_y)
 ```
-Purpose: Reads input from the user, including the board size (N and M) and the knight’s starting position (start_x and start_y).
-Logic: Uses input() to get values and converts them into integers using map().
+- Purpose: Reads input from the user, including the board size (N and M) and the knight’s starting position (start_x and start_y).
+- Logic: Uses input() to get values and converts them into integers using map().
 
 ### How It All Works Together:
 - Input: The user provides the board size and starting position.
