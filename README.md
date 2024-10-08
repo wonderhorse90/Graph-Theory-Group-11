@@ -195,9 +195,12 @@ n, e = int(input()), int(input())  # Number of vertices and edges
 graph, adj_list = {}, {i: [] for i in range(1, n + 1)}
 ```
 Imports:
+
     - itertools: Provides useful iterators, like combinations.
     - heapq: Implements a priority queue used in Dijkstra's algorithm.
+    
 Input Parsing:
+
     - n is the number of vertices.
     - e is the number of edges.
     - graph: A dictionary to store edges as (edge_id: (u, v, w)), where u and v are vertices and w is the weight (cost) of the edge.
