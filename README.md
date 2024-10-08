@@ -183,6 +183,172 @@ output:
 Cost: 17
 Route: 0, 1, 3
 
+# Number 2
+## Chinese Postman Problem
+This code implements a solution for the Chinese Postman Problem. The goal is to find the least-cost circuit on a graph where each edge is traversed at least once, and all vertices are visited.
+
+### Imports and Input Parsing:
+```
+import itertools, heapq
+
+n, e = int(input()), int(input())  # Number of vertices and edges
+graph, adj_list = {}, {i: [] for i in range(1, n + 1)}
+```
+Imports:
+    - itertools: Provides useful iterators, like combinations.
+    - heapq: Implements a priority queue used in Dijkstra's algorithm.
+Input Parsing:
+    - n is the number of vertices.
+    - e is the number of edges.
+    - graph: A dictionary to store edges as (edge_id: (u, v, w)), where u and v are vertices and w is the weight (cost) of the edge.
+    - adj_list: Adjacency list to store the graph as a dictionary of vertex i and its neighboring vertices, along with the corresponding edge information.
+    
+### Adding an Edge (add_edge function):
+```
+def add_edge(eid, u, v, w):
+    old_edges = [(adj, wt, name) for adj, wt, name in adj_list[u] if adj == v and wt > w]
+    if old_edges:
+        old_name = old_edges[0][2]
+        adj_list[u] = [(adj, wt, name) for adj, wt, name in adj_list[u] if adj != v]
+        adj_list[v] = [(adj, wt, name) for adj, wt, name in adj_list[v] if adj != u]
+        del graph[old_name]
+
+        graph[eid] = (u, v, w)
+        adj_list[u].append((v, w, eid))
+        adj_list[v].append((u, w, eid))
+
+        graph[old_name] = (u, v, old_edges[0][1])
+        adj_list[u].append((v, old_edges[0][1], old_name))
+        adj_list[v].append((u, old_edges[0][1], old_name))
+    else:
+        graph[eid] = (u, v, w)
+        adj_list[u].append((v, w, eid))
+        adj_list[v].append((u, w, eid))
+```
+- add_edge adds an edge between two vertices u and v with a weight w.
+- If there is already an edge between u and v with a higher weight, it is replaced by the new edge with the lower weight. The graph dictionary and adjacency list are updated to reflect this.
+- If no such edge exists, the edge is simply added.
+
+### Building the Graph (Reading edges):
+```
+for _ in range(e):
+    edge_info = input().split()
+    eid, u, v, w = int(edge_info[0]), int(edge_info[1]), int(edge_info[2]), int(edge_info[3])
+    if u > v: u, v = v, u
+    add_edge(eid, u, v, w)
+```
+
+- Edge Input: Loops through e edges.
+- For each edge, it reads the edge ID (eid), vertices u and v, and weight w.
+- If u > v, it swaps them to maintain a consistent order for simplicity.
+- Calls add_edge to add the edge to the graph.
+
+### Calculating Degrees (calc_degrees function):
+```
+def calc_degrees(adj_list):
+    return {i: len(adj_list[i]) for i in adj_list}
+```
+
+- calc_degrees calculates the degree of each vertex. The degree is the number of edges connected to the vertex.
+- Returns a dictionary where the keys are vertices and values are their degrees.
+
+### Finding Odd-Degree Vertices (find_odd_vertices function):
+```
+def find_odd_vertices(degree):
+    return [v for v in degree if degree[v] % 2 != 0]
+```
+find_odd_vertices identifies all vertices with an odd degree. These vertices need to be paired to make the graph Eulerian
+
+### Dijkstra's Algorithm (dijkstra function):
+```
+def dijkstra(src, dst):
+    dist = {i: float('inf') for i in range(1, n + 1)}
+    dist[src], prev, edge_used = 0, {i: None for i in range(1, n + 1)}, {}
+    pq = [(0, src)]
+    
+    while pq:
+        cur_dist, u = heapq.heappop(pq)
+        if cur_dist > dist[u]: continue
+        for v, w, eid in adj_list[u]:
+            if cur_dist + w < dist[v]:
+                dist[v], prev[v], edge_used[v] = cur_dist + w, u, eid
+                heapq.heappush(pq, (dist[v], v))
+    
+    path, cur = [], dst
+    while prev[cur]: path.append(edge_used[cur]); cur = prev[cur]
+    return dist[dst], path[::-1]
+```
+
+- Dijkstra’s Algorithm is used to find the shortest path between two vertices src (source) and dst (destination).
+- It uses a priority queue (heapq) to explore vertices with the smallest current distance.
+- After computing the shortest distance, it reconstructs the path from src to dst.
+- Returns both the shortest distance and the path of edges.
+
+### Matching Odd-Degree Vertices (match_odd_vertices function):
+```
+def match_odd_vertices(odd_vertices):
+    pairs = itertools.combinations(odd_vertices, 2)
+    return {(u, v): dijkstra(u, v) for u, v in pairs}
+```
+
+- match_odd_vertices finds the shortest paths between all pairs of odd-degree vertices.
+- Uses itertools.combinations to generate pairs of odd-degree vertices, then calls dijkstra to compute the shortest paths between each pair.
+
+### Adding Matching Edges (add_matching_edges function):
+```
+def add_matching_edges(odd_vertices, pairings):
+    total_cost, route = 0, []
+    while odd_vertices:
+        u = odd_vertices.pop(0)
+        best_pair = min((v for v in odd_vertices), key=lambda v: pairings[(u, v)][0])
+        odd_vertices.remove(best_pair)
+        total_cost += pairings[(u, best_pair)][0]
+        route += pairings[(u, best_pair)][1]
+    return total_cost, route
+```
+- add_matching_edges pairs up odd-degree vertices using the shortest paths calculated earlier.
+- It selects pairs that minimize the total additional cost, updates the route, and removes the odd-degree vertices as they are paired.
+- Returns the total cost of the added edges and the route.
+
+### Eulerian Tour (euler_tour function):
+```
+def euler_tour(start):
+    stack, tour, used = [start], [], set()
+    while stack:
+        u = stack[-1]
+        available = [(v, w, eid) for v, w, eid in adj_list[u] if eid not in used]
+        if available:
+            v, w, eid = min(available, key=lambda x: x[1])
+            used.add(eid)
+            stack.append(v)
+        else:
+            tour.append(stack.pop())
+    return tour
+```
+
+- euler_tour computes an Eulerian circuit. It starts from a given vertex and finds a path that visits every edge exactly once.
+- It uses a stack to track the current path and a set used to mark edges that have been traversed.
+
+### Chinese Postman Solution (chinese_postman function):
+```
+def chinese_postman():
+    deg = calc_degrees(adj_list)
+    odd_vertices = find_odd_vertices(deg)
+    extra_cost, extra_edges = 0, []
+    
+    if odd_vertices:
+        pairings = match_odd_vertices(odd_vertices)
+        extra_cost, extra_edges = add_matching_edges(odd_vertices, pairings)
+
+    total_cost = sum(w for _, (_, _, w) in graph.items()) + extra_cost
+    eulerian_path = euler_tour(start)
+    print(f"Cost: {total_cost}")
+    print("Route:", ', '.join(str(edge) for edge in list(graph.keys()) + extra_edges))
+```
+chinese_postman solves the Chinese Postman Problem.
+    - First, it calculates the degree of all vertices and identifies the odd-degree vertices.
+    - If there are odd-degree vertices, it pairs them using the minimum-cost matching and computes the additional cost.
+    - Then, it calculates the Eulerian tour and outputs the total cost and the Eulerian path.
 
 # Number 3
 
